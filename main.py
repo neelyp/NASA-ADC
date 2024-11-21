@@ -4,6 +4,7 @@ from ursina.shaders import lit_with_shadows_shader
 import numpy as np
 import random
 import time
+import adcdata
 #reading file
 from adcdata import *
 mins = []
@@ -58,9 +59,9 @@ rocketZ=0
 window.title = "Astrovia"
 window.icon = "assets/space.png"
 
-max_frames = 60
+max_frames = 120
 
-window.fps_counter.max = 60 
+window.fps_counter.max = 120
 
 paused = False
 
@@ -103,7 +104,7 @@ def update():
     moon.z = earth.z + moon_radius * np.sin(np.radians(moon_angle))
     
     # position the light on the opposite side of the Earth relative to the moon
-    light_angle += 0.01
+    light_angle += 0.1
     light_x = earth.x - moon_radius * np.cos(np.radians(moon_angle))
     light_z = earth.z - moon_radius * np.sin(np.radians(moon_angle))
     pivot.position = (light_x, 2, light_z)  # set the light's position
@@ -112,6 +113,7 @@ def update():
     rocket.z = getAny(rz,pos)/pathScale
     rocket.y = getAny(ry,pos)/pathScale
     
+    Circle(position=rocket.position)
 
  
 
@@ -162,6 +164,14 @@ class Rocket(Entity):
         self.texture = texture
         self.name = name 
 
+class Circle(Entity):
+    def __init__(self, position):
+        super().__init__()
+        self.model = 'circle'  # Use a circle model
+        self.color = color.white  # Set color to white
+        self.scale = 0.1  # Adjust size as needed
+        self.position = position  # Set the position to where the rocket touches
+
 # Creates Earth
 earth = Planet(0, -.1, 0, 911.162428571, 'assets/8k_earth_daymap', "Earth")
 
@@ -179,6 +189,7 @@ player = FirstPersonController(position=(-150, 300, -3500), gravity=0, speed=100
 
 pivot = Entity()
 DirectionalLight(parent=pivot, y=2, z=3, shadows=True)
+
 
 
 app.run()
