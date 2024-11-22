@@ -1,4 +1,5 @@
 # NASA-ADC
-yo anyone that wants to run the main app go into terminal and then type 'python main.py' give it a bit and it will run
 
-im still trying to find ways to make load time a lot less.
+Visualizer for 2025 NASA App Development Challenge
+
+Run `main.py` for app.
