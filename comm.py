@@ -23,6 +23,11 @@ def bestAntenna(slant): # slant will be determined through data file, for now it
     """
     Returns the best antenna for the current position using the link budget.
     Higher link budget = better connection = better antenna
+
+    End goal is to display the antennas based on best connection; Green light for best connection, then yellow for second best, and red for shouldn't be used.
+
+    Colors will be decided based on order returned from this. the first antenna returned is green, second is yellow, last two are red (im not sure if we should include inactive antennas, but they shouldn't be used anyways so red shld work)
+
     TODO: read from data file to get active antennas AND slant range
     """
 
@@ -31,11 +36,12 @@ def bestAntenna(slant): # slant will be determined through data file, for now it
     wpsaDiameter = 12 # diameter for wpsa antenna
 
     # antennas that are active
+    # when reading from file, we will change the values based on if the antenna is currently available.
     # this will later be decided through reading the data file
-    dss24Active = False
-    dss34Active = False
+    dss24Active = True
+    dss34Active = True
     dss54Active = False
-    wpsaActive = False
+    wpsaActive = True
 
     budgets = { # dict of antennas as keys and link budget as value
         "dss24": linkBudget(d, slant) if dss24Active else 0, # python ternary operator basically a one line if statement using the link budget if it is active, otherwise setting it to 0
@@ -44,16 +50,13 @@ def bestAntenna(slant): # slant will be determined through data file, for now it
         "wpsa": linkBudget(wpsaDiameter, slant) if wpsaActive else 0
     }
 
-    print(budgets)
+    # print(budgets)
 
-    best = max(budgets, key=budgets.get)
-    bestBudget = budgets[best]
+    highToLow = sorted(budgets.items(), key = lambda x: x[1], reverse=True) # sorts the antennas by link budget, highest to low.
+                                                                            # when using slant range 400k and dss24, ds34, and wpsa are active, it will return
+                                                                            # [('dss24', 740.7264920372704), ('dss34', 740.7264920372704), ('wpsa', 92.27042807384723), ('dss54', 0)]
+                                                                            # until slant range is read from data, every link budget will be the same 
+                                                                            # other than wpsa since they all have the same diameter
+    return highToLow
 
-    return [best, bestBudget] # returns a list that has antenna name for the best current antenna and the link budget for that antenna 
-                              # example: ['dss24', 740.7264920372704]
-
-  
-    
-
-
-print(bestAntenna(400000))
+# print(bestAntenna(400000))
