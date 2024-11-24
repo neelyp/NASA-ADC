@@ -41,7 +41,7 @@ def bestAntenna(slant): # slant will be determined through data file, for now it
         "dss24": linkBudget(d, slant) if dss24Active else 0, # python ternary operator basically a one line if statement using the link budget if it is active, otherwise setting it to 0
         "dss34": linkBudget(d, slant) if dss34Active else 0,
         "dss54": linkBudget(d, slant) if dss54Active else 0,
-        "wpsa": linkBudget(wpsaActive, slant) if wpsaActive else 0
+        "wpsa": linkBudget(wpsaDiameter, slant) if wpsaActive else 0
     }
 
     print(budgets)
