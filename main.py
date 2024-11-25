@@ -77,7 +77,7 @@ txt_TimeOfMission = Text(text = "Time: " ,position=(-0.8,0.4), origin=(0,0), sca
 txt_PositionOfRocket = Text(text = "Position: " ,position=(-0.8,0.45), origin=(0,0), scale=1)
 txt_time = Text(text = "Time: " + str(timeSkib), position=(-0.8,0.), origin=(0,0), scale=1)
 
-pathScale = 35
+pathScale = 100
 
 
 def update():
@@ -113,6 +113,11 @@ def update():
     rocket.z = getAny(rz,pos)/pathScale
     rocket.y = getAny(ry,pos)/pathScale
     
+
+
+
+
+  
 
  
 
