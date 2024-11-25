@@ -108,12 +108,11 @@ def update():
     light_x = earth.x - moon_radius * np.cos(np.radians(moon_angle))
     light_z = earth.z - moon_radius * np.sin(np.radians(moon_angle))
     pivot.position = (light_x, 2, light_z)  # set the light's position
-    pos = pos+1
+    pos = pos+10
     rocket.x = getAny(rx,pos)/pathScale
     rocket.z = getAny(rz,pos)/pathScale
     rocket.y = getAny(ry,pos)/pathScale
     
-    Circle(position=rocket.position)
 
  
 
@@ -164,13 +163,6 @@ class Rocket(Entity):
         self.texture = texture
         self.name = name 
 
-class Circle(Entity):
-    def __init__(self, position):
-        super().__init__()
-        self.model = 'circle'  # Use a circle model
-        self.color = color.white  # Set color to white
-        self.scale = 0.1  # Adjust size as needed
-        self.position = position  # Set the position to where the rocket touches
 
 # Creates Earth
 earth = Planet(0, -.1, 0, 911.162428571, 'assets/8k_earth_daymap', "Earth")
@@ -181,6 +173,7 @@ moon = Moon(4914.3, 500, 0, 248.2, 'assets/8k_moon', "Moon")
 
 # Creates rocket
 rocket = Rocket(rocketX, rocketY, rocketZ, 1, 'assets/Solid20Neon20Green-600x400' ,"Rocket") 
+
 
 
 Sky(texture="assets/space")
