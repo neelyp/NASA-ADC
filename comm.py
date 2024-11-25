@@ -1,6 +1,31 @@
-from adcdata import *
+from adcdata import getAny
 import math
-
+mins = []
+mass = []
+wpsa = []
+wpsar = []
+ds54 = []
+ds54r = []
+ds24 = []
+ds24r = []
+ds34 = []
+ds34r = []
+artemisPath= open("assets/NASA_ADC_Data_Update.csv", "r")  
+for line in artemisPath:
+    #get rids of the commas
+    entries = line.split(",")
+    #append to each array
+    mins.append(entries[0])
+    mass.append(entries[7])
+    wpsa.append(entries[8])
+    wpsar.append(entries[9])
+    ds54.append(entries[10])
+    ds54r.append(entries[11])
+    ds24.append(entries[12])
+    ds24r.append(entries[13])
+    ds34.append(entries[14])
+    ds34r.append(entries[15])
+artemisPath.close() 
 
 def linkBudget(diameter, slantRange):
     # declare constants
@@ -38,25 +63,34 @@ def bestAntenna(slant): # slant will be determined through data file, for now it
     # antennas that are active
     # when reading from file, we will change the values based on if the antenna is currently available.
     # this will later be decided through reading the data file
-    dss24Active = True
-    dss34Active = True
-    dss54Active = False
+    ds24Active = False
+    ds34Active = False
+    ds54Active = False
     wpsaActive = True
 
     budgets = { # dict of antennas as keys and link budget as value
-        "dss24": linkBudget(d, slant) if dss24Active else 0, # python ternary operator basically a one line if statement using the link budget if it is active, otherwise setting it to 0
-        "dss34": linkBudget(d, slant) if dss34Active else 0,
-        "dss54": linkBudget(d, slant) if dss54Active else 0,
+        "ds24": linkBudget(d, slant) if ds24Active else 0, # python ternary operator basically a one line if statement using the link budget if it is active, otherwise setting it to 0
+        "ds34": linkBudget(d, slant) if ds34Active else 0,
+        "ds54": linkBudget(d, slant) if ds54Active else 0,
         "wpsa": linkBudget(wpsaDiameter, slant) if wpsaActive else 0
     }
 
     # print(budgets)
 
     highToLow = sorted(budgets.items(), key = lambda x: x[1], reverse=True) # sorts the antennas by link budget, highest to low.
-                                                                            # when using slant range 400k and dss24, ds34, and wpsa are active, it will return
-                                                                            # [('dss24', 740.7264920372704), ('dss34', 740.7264920372704), ('wpsa', 92.27042807384723), ('dss54', 0)]
+                                                                            # when using slant range 400k and ds24, ds34, and wpsa are active, it will return
+                                                                            # [('ds24', 740.7264920372704), ('ds34', 740.7264920372704), ('wpsa', 92.27042807384723), ('ds54', 0)]
                                                                             # until slant range is read from data, every link budget will be the same 
                                                                             # other than wpsa since they all have the same diameter
     return highToLow
 
-# print(bestAntenna(400000))
+# print(bestAntenna(getAny(wpsar,101)))
+# print(bestAntenna(74284.61081))
+
+for i in range(len(wpsa)):
+    print(str(wpsa[i]))
+    print(str(ds24[i]))
+    print(str(ds34[i]))
+    print(str(ds54[i]))
+    break
+

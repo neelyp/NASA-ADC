@@ -11,3 +11,4 @@ def getAny(arr, num):
         return float(arr[num])
     else:
         return 0
+        
