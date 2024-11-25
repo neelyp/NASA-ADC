@@ -88,9 +88,35 @@ def bestAntenna(slant): # slant will be determined through data file, for now it
 # print(bestAntenna(74284.61081))
 
 for i in range(len(wpsa)):
-    print(str(wpsa[i]))
-    print(str(ds24[i]))
-    print(str(ds34[i]))
-    print(str(ds54[i]))
+    wpsaActive = False
+    ds24Active = False
+    ds34Active = False
+    ds54Active = False
+    # print(int(wpsa[i]) == 1)
+    # print(int(ds24[i]) == 1)
+    # print(int(ds34[i]) == 1)
+    # print(int(ds54[i]) == 1)
+
+    wpsaActive = True if int(wpsa[i]) == 1 else False
+    ds24Active = True if int(ds24[i]) == 1 else False
+    ds34Active = True if int(ds34[i]) == 1 else False
+    ds54Active = True if int(ds54[i]) == 1 else False
+
+    if wpsaActive == True:
+        print(bestAntenna(getAny(wpsar, i)))
+        # print(wpsar[i])
+    if ds24Active == True:
+        print(bestAntenna(getAny(ds24r, i)))
+        # pass
+    if ds34Active == True:
+        print(bestAntenna(getAny(ds34r, i)))
+        # pass
+    if ds54Active == True:
+        print(bestAntenna(getAny(ds54r, i)))
+        # pass
+
+
+    # print(wpsaActive, ds24Active, ds34Active, ds54Active)
+
     break
 
