@@ -77,7 +77,7 @@ txt_TimeOfMission = Text(text = "Time: " ,position=(-0.8,0.4), origin=(0,0), sca
 txt_PositionOfRocket = Text(text = "Position: " ,position=(-0.8,0.45), origin=(0,0), scale=1)
 txt_time = Text(text = "Time: " + str(timeSkib), position=(-0.8,0.), origin=(0,0), scale=1)
 
-pathScale = 100
+pathScale = 35
 
 
 def update():
@@ -179,11 +179,29 @@ moon = Moon(4914.3, 500, 0, 248.2, 'assets/8k_moon', "Moon")
 # Creates rocket
 rocket = Rocket(rocketX, rocketY, rocketZ, 1, 'assets/Solid20Neon20Green-600x400' ,"Rocket") 
 
+size = len(rx) - 3
 
+points = []
+secondPoints = []
+pathScale2 = 35
 
-Sky(texture="assets/space")
+half = 6488
+
+for i in range(1, size - half):
+    points.append(Vec3(float(rx[i])/pathScale2, float(ry[i])/pathScale2, float(rz[i])/pathScale2))
+
+curve_renderer = Entity(model=Mesh(vertices=points, mode='line', thickness=5), color = color.green)
+
+for i in range(size - half, size):
+    secondPoints.append(Vec3(float(rx[i])/pathScale2, float(ry[i])/pathScale2, float(rz[i])/pathScale2))
+
+Secondcurve_renderer = Entity(model=Mesh(vertices=secondPoints, mode='line', thickness=5), color = color.green)
+
+Sky(texture="assets/white")
 
 player = FirstPersonController(position=(-150, 300, -3500), gravity=0, speed=1000) #camera
+
+
 
 pivot = Entity()
 DirectionalLight(parent=pivot, y=2, z=3, shadows=True)
