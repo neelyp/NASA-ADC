@@ -44,7 +44,7 @@ def linkBudget(diameter, slantRange):
     return final
 
 
-def bestAntenna(slant): # slant will be determined through data file, for now it is just a parameter to make this simpler
+def bestAntenna(actives, slants): # slant will be determined through data file, for now it is just a parameter to make this simpler
     """
     Returns the best antenna for the current position using the link budget.
     Higher link budget = better connection = better antenna
@@ -63,16 +63,16 @@ def bestAntenna(slant): # slant will be determined through data file, for now it
     # antennas that are active
     # when reading from file, we will change the values based on if the antenna is currently available.
     # this will later be decided through reading the data file
-    ds24Active = False
-    ds34Active = False
-    ds54Active = False
-    wpsaActive = True
+    wpsaActive = actives[0]
+    ds24Active = actives[1]
+    ds34Active = actives[2]
+    ds54Active = actives[3]
 
     budgets = { # dict of antennas as keys and link budget as value
-        "ds24": linkBudget(d, slant) if ds24Active else 0, # python ternary operator basically a one line if statement using the link budget if it is active, otherwise setting it to 0
-        "ds34": linkBudget(d, slant) if ds34Active else 0,
-        "ds54": linkBudget(d, slant) if ds54Active else 0,
-        "wpsa": linkBudget(wpsaDiameter, slant) if wpsaActive else 0
+        "wpsa": linkBudget(wpsaDiameter, slants[0]) if wpsaActive else 0, # python ternary operator basically a one line if statement using the link budget if it is active, otherwise setting it to 0
+        "ds24": linkBudget(d, slants[1]) if ds24Active else 0, 
+        "ds34": linkBudget(d, slants[2]) if ds34Active else 0,
+        "ds54": linkBudget(d, slants[3]) if ds54Active else 0
     }
 
     # print(budgets)
@@ -102,21 +102,18 @@ for i in range(len(wpsa)):
     ds34Active = True if int(ds34[i]) == 1 else False
     ds54Active = True if int(ds54[i]) == 1 else False
 
-    if wpsaActive == True:
-        print(bestAntenna(getAny(wpsar, i)))
-        # print(wpsar[i])
-    if ds24Active == True:
-        print(bestAntenna(getAny(ds24r, i)))
-        # pass
-    if ds34Active == True:
-        print(bestAntenna(getAny(ds34r, i)))
-        # pass
-    if ds54Active == True:
-        print(bestAntenna(getAny(ds54r, i)))
-        # pass
+    # print(ds24r[0])
+
+    print(bestAntenna(
+        [wpsaActive, ds24Active, ds34Active, ds54Active],
+        [getAny(wpsar, i),getAny(ds24r, i),getAny(ds34r, i),getAny(ds54r, i)]))
 
 
     # print(wpsaActive, ds24Active, ds34Active, ds54Active)
 
-    break
+    # txt_Antennas = Text(text = "WPSA: " ,position = (-0.10, 0.5), origin = (0, 0), scale = 1)
+    # txt_Antennas = Text(text = "DS24: " ,position = (-0.10, 0.5), origin = (0, 0), scale = 1)
+    # txt_Antennas = Text(text = "DS34: " ,position = (-0.10, 0.5), origin = (0, 0), scale = 1)
+    # txt_Antennas = Text(text = "DS54: " ,position = (-0.10, 0.5), origin = (0, 0), scale = 1)
+    
 
