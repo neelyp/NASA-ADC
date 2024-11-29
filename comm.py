@@ -1,31 +1,5 @@
 from adcdata import getAny
 import math
-mins = []
-mass = []
-wpsa = []
-wpsar = []
-ds54 = []
-ds54r = []
-ds24 = []
-ds24r = []
-ds34 = []
-ds34r = []
-artemisPath= open("assets/NASA_ADC_Data_Update.csv", "r")  
-for line in artemisPath:
-    #get rids of the commas
-    entries = line.split(",")
-    #append to each array
-    mins.append(entries[0])
-    mass.append(entries[7])
-    wpsa.append(entries[8])
-    wpsar.append(entries[9])
-    ds54.append(entries[10])
-    ds54r.append(entries[11])
-    ds24.append(entries[12])
-    ds24r.append(entries[13])
-    ds34.append(entries[14])
-    ds34r.append(entries[15])
-artemisPath.close() 
 
 def linkBudget(diameter, slantRange):
     # declare constants
@@ -52,8 +26,6 @@ def bestAntenna(actives, slants): # slant will be determined through data file, 
     End goal is to display the antennas based on best connection; Green light for best connection, then yellow for second best, and red for shouldn't be used.
 
     Colors will be decided based on order returned from this. the first antenna returned is green, second is yellow, last two are red (im not sure if we should include inactive antennas, but they shouldn't be used anyways so red shld work)
-
-    TODO: read from data file to get active antennas AND slant range
     """
 
     # antenna diameters
@@ -87,26 +59,59 @@ def bestAntenna(actives, slants): # slant will be determined through data file, 
 # print(bestAntenna(getAny(wpsar,101)))
 # print(bestAntenna(74284.61081))
 
-for i in range(len(wpsa)):
-    wpsaActive = False
-    ds24Active = False
-    ds34Active = False
-    ds54Active = False
-    # print(int(wpsa[i]) == 1)
-    # print(int(ds24[i]) == 1)
-    # print(int(ds34[i]) == 1)
-    # print(int(ds54[i]) == 1)
+def main():
+    mins = []
+    mass = []
+    wpsa = []
+    wpsar = []
+    ds54 = []
+    ds54r = []
+    ds24 = []
+    ds24r = []
+    ds34 = []
+    ds34r = []
+    artemisPath= open("assets/NASA_ADC_Data_Update.csv", "r")  
+    for line in artemisPath:
+        #get rids of the commas
+        entries = line.split(",")
+        #append to each array
+        mins.append(entries[0])
+        mass.append(entries[7])
+        wpsa.append(entries[8])
+        wpsar.append(entries[9])
+        ds54.append(entries[10])
+        ds54r.append(entries[11])
+        ds24.append(entries[12])
+        ds24r.append(entries[13])
+        ds34.append(entries[14])
+        ds34r.append(entries[15])
+    artemisPath.close() 
+    gyrs = []
 
-    wpsaActive = True if int(wpsa[i]) == 1 else False
-    ds24Active = True if int(ds24[i]) == 1 else False
-    ds34Active = True if int(ds34[i]) == 1 else False
-    ds54Active = True if int(ds54[i]) == 1 else False
 
-    # print(ds24r[0])
+    for i in range(len(wpsa)):
 
-    print(bestAntenna(
-        [wpsaActive, ds24Active, ds34Active, ds54Active],
-        [getAny(wpsar, i),getAny(ds24r, i),getAny(ds34r, i),getAny(ds54r, i)]))
+        # initialize all actives to false at beginning of each iteration
+        wpsaActive = False
+        ds24Active = False
+        ds34Active = False
+        ds54Active = False
+
+        # check data and fix activity
+        wpsaActive = True if int(wpsa[i]) == 1 else False
+        ds24Active = True if int(ds24[i]) == 1 else False
+        ds34Active = True if int(ds34[i]) == 1 else False
+        ds54Active = True if int(ds54[i]) == 1 else False
+
+
+        bests = bestAntenna(                                                      # run best antenna by  
+            [wpsaActive, ds24Active, ds34Active, ds54Active],                     # plugging in the active antennas
+            [getAny(wpsar, i),getAny(ds24r, i),getAny(ds34r, i),getAny(ds54r, i)] # and the slant ranges of them
+        )
+
+        gyr = (bests[0][0], bests[1][0], bests[2][0]) # [green light, yellow light, red light]
+        gyrs.append(gyr)
+    return gyrs
 
 
     # print(wpsaActive, ds24Active, ds34Active, ds54Active)
@@ -115,5 +120,3 @@ for i in range(len(wpsa)):
     # txt_Antennas = Text(text = "DS24: " ,position = (-0.10, 0.5), origin = (0, 0), scale = 1)
     # txt_Antennas = Text(text = "DS34: " ,position = (-0.10, 0.5), origin = (0, 0), scale = 1)
     # txt_Antennas = Text(text = "DS54: " ,position = (-0.10, 0.5), origin = (0, 0), scale = 1)
-    
-
