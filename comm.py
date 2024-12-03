@@ -26,6 +26,24 @@ def bestAntenna(actives, slants): # slant will be determined through data file, 
     End goal is to display the antennas based on best connection; Green light for best connection, then yellow for second best, and red for shouldn't be used.
 
     Colors will be decided based on order returned from this. the first antenna returned is green, second is yellow, last two are red (im not sure if we should include inactive antennas, but they shouldn't be used anyways so red shld work)
+
+    TODO: make this a prioritized list 🙄
+    things over 10k are thought as same as 10k
+    eg:
+    sattelites a,b,c , max 10
+    a: 5
+    b: 6
+    c: 10
+
+    c,b,a
+
+    changes to:
+    a: 15
+    b: 6
+    c: 10
+
+    since a is over 10 and c is 10 + alr active, don't change active sattelite
+    c,a,b
     """
 
     # antenna diameters
@@ -112,11 +130,3 @@ def main():
         gyr = (bests[0][0], bests[1][0], bests[2][0]) # [green light, yellow light, red light]
         gyrs.append(gyr)
     return gyrs
-
-
-    # print(wpsaActive, ds24Active, ds34Active, ds54Active)
-
-    # txt_Antennas = Text(text = "WPSA: " ,position = (-0.10, 0.5), origin = (0, 0), scale = 1)
-    # txt_Antennas = Text(text = "DS24: " ,position = (-0.10, 0.5), origin = (0, 0), scale = 1)
-    # txt_Antennas = Text(text = "DS34: " ,position = (-0.10, 0.5), origin = (0, 0), scale = 1)
-    # txt_Antennas = Text(text = "DS54: " ,position = (-0.10, 0.5), origin = (0, 0), scale = 1)

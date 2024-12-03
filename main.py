@@ -6,6 +6,8 @@ import random
 import time
 import adcdata
 from adcdata import *
+import comm
+
 
 mins = []
 rx = []
@@ -55,7 +57,7 @@ is_paused = True
 timeline_width = 12
 start_x = -6
 current_x = start_x
-move_speed = 0.02
+move_speed = 0.1
 
 pos=0
 rocketX=0
@@ -81,7 +83,7 @@ txt_TimeOfMission = Text(text = "Time: " ,position=(-0.8,0.4), origin=(0,0), sca
 txt_PositionOfRocket = Text(text = "Position: " ,position=(-0.8,0.45), origin=(0,0), scale=1)
 txt_time = Text(text = "Time: " + str(timeSkib), position=(-0.8,0.), origin=(0,0), scale=1)
 
-pathScale = 35
+pathScale = 45
 
 def update():
     txt_time.text = "Time " + str(timeSkib)
@@ -121,7 +123,7 @@ def update():
 
     elif drag_timeline.dragging:
         current_x = drag_timeline.x
-
+    
     update_time()
     update_fill_bar()
     
@@ -130,12 +132,53 @@ def update_time():
     array_index = int(relative_pos * len(mins))
     if 0 <= array_index < len(mins):
         time_box.text = f"Time: {mins[array_index]:}"
+        colorize_thingies(array_index)
         print(f"Minutes: {mins[array_index]}")
 
 def update_fill_bar():
     relative_pos = (current_x - start_x) / (abs(start_x * 2))
     fill_bar.scale_x = timeline_width * relative_pos
 
+def colorize_thingies(num):
+    wpsa_text.color=color.gray
+    ds24_text.color=color.gray
+    ds34_text.color=color.gray
+    ds54_text.color=color.gray
+    triplets = comm.main()
+    print("length: " + str(len(triplets)))
+    print("index" + str(num))
+    curr = triplets[num]
+    one = curr[0]
+    match one:
+        case 'wpsa':
+            wpsa_text.color=color.green
+        case 'ds24':
+            ds24_text.color=color.green
+        case 'ds34':
+            ds34_text.color=color.green
+        case 'ds54':
+            ds54_text.color=color.green
+    two = curr[1]
+    match two:
+        case 'wpsa':
+            wpsa_text.color=color.yellow
+        case 'ds24':
+            ds24_text.color=color.yellow
+        case 'ds34':
+            ds34_text.color=color.yellow
+        case 'ds54':
+            ds54_text.color=color.yellow
+    three = curr[2]
+    match three:
+        case 'wpsa':
+            wpsa_text.color=color.red
+        case 'ds24':
+            ds24_text.color=color.red
+        case 'ds34':
+            ds34_text.color=color.red
+        case 'ds54':
+            ds54_text.color=color.red
+    
 def input(key):
     if held_keys['space']:
         player.y += 1200 * time.dt
@@ -185,7 +228,7 @@ class Rocket(Entity):
         self.y = y
         self.z = z
         self.scale = scale
-        self.shader = lit_with_shadows_shader
+       # self.shader = lit_with_shadows_shader
         self.texture = texture
         self.name = name 
 
@@ -193,62 +236,127 @@ button = Button(
     text="pause",
     color=color.black,
     scale=(0.1, 0.1),
-    position=(-0.71, -0.37),
+    position=(-0.71, -0.37,1),
     on_click=input
 )
 
 # Updated timeline positioning
+# fill_box = Entity(
+#     parent =  camera.ui,
+#     model='quad',
+#     color=color.red,
+#     scale=(timeline_width, 0.2),
+#     position=(0, -3.5,1)
+   
+# )
+# #the green stiff not static
+# fill_bar = Entity(
+#     parent = camera.ui,
+#     model='quad',
+#     color=color.green,
+#     scale=(0, 0.2),  
+#     position=(0, 0, 1),
+#     origin=(-0.5, 0.5,1)  
+# )
+
+# drag_timeline = Draggable(
+#     parent = camera.ui,
+#     model='quad',
+#     color=color.white,
+#     scale=(0.07, 0.45),
+#     position=(start_x, -3.5,1),
+#     lock=(0, 1, 0)
+    
+# )
+
+# Timeline container
 fill_box = Entity(
+    parent=camera.ui,
     model='quad',
     color=color.red,
-    scale=(timeline_width, 0.2),
-    position=(0, -0, 0),  
-)
-fill_bar = Entity(
-    model='quad',
-    color=color.green,
-    scale=(0.1, 0.2),  
-    position=(-0, 0, 0),  
-    origin=(-0.5, 0.5)  
+    scale=(timeline_width-1, 0.05),  # Adjust height as needed
+    position=(0, -0.4),  # Adjust Y to bring it into view
 )
 
-drag_timeline = Draggable(
+# Timeline progress bar
+fill_bar = Entity(
+    parent=camera.ui,
     model='quad',
-    parent=scene,
-    color=color.white,
-    scale=(0.07, 0.45),
-    position=(start_x, -0, 0),  
-    lock=(0, 1, 0)
+    color=color.green,
+    scale=(0.01, 0.05),  # Initially narrow
+    position=((-timeline_width / 2)/7, -0.4),  # Match `fill_box` Y and align left
+    origin=(-0.5, 0.5),  # Align the left edge for growth
 )
+
+# Draggable marker
+drag_timeline = Draggable(
+    parent=camera.ui,
+    model='quad',
+    color=color.white,
+    scale=(0.07, 0.15),  # Adjust width and height for visibility
+    position=(-timeline_width /7, -0.4),  # Start at the left of the timeline
+    lock=(0, 1, 0),  # Restrict dragging along X
+)
+
+
 
 time_box = Text(
     text="Time: 0.0",
-    position=(-0.1, -0.3),  # Raised higher
+    position=(-0.1, -0.4),  # Raised higher
     scale=1.5,
     color=color.white,
+    # parent = camera.ui
 )
-
-earth = Planet(0, -.1, 0, 911.162428571, 'assets/8k_earth_daymap', "Earth")
+wpsa_text = Text(
+    text="WPSA",
+    position=(.7, 0.45),  # Raised higher
+    scale=1.5,
+    color=color.white,
+    parent = camera.ui
+)
+ds24_text = Text(
+    text="DS24",
+    position=(.7, 0.4),  # Raised higher
+    scale=1.5,
+    color=color.white,
+    parent = camera.ui
+)
+ds34_text = Text(
+    text="DS34",
+    position=(.7, 0.35),  # Raised higher
+    scale=1.5,
+    color=color.white,
+    parent = camera.ui
+)
+ds54_text = Text(
+    text="DS54",
+    position=(.7, 0.3),  # Raised higher
+    scale=1.5,
+    color=color.white,
+    parent = camera.ui
+)
+earth = Planet(0, -.1, 0, 151.860404762, 'assets/8k_earth_daymap', "Earth")#911.162428571
 moon = Moon(4914.3, 500, 0, 248.2, 'assets/8k_moon', "Moon")
 rocket = Rocket(rocketX, rocketY, rocketZ, 1, 'assets/Solid20Neon20Green-600x400' ,"Rocket") 
 
+#Orbit
 size = len(rx) - 3
 
 points = []
 secondPoints = []
-pathScale2 = 35
+pathScale2 = 45
 
 half = 6488
 
 for i in range(1, size - half):
     points.append(Vec3(float(rx[i])/pathScale2, float(ry[i])/pathScale2, float(rz[i])/pathScale2))
 
-curve_renderer = Entity(model=Mesh(vertices=points, mode='line', thickness=5), color = color.green)
+curve_renderer = Entity(model=Mesh(vertices=points, mode='line', thickness=2.5), color = color.white)
 
 for i in range(size - half, size):
     secondPoints.append(Vec3(float(rx[i])/pathScale2, float(ry[i])/pathScale2, float(rz[i])/pathScale2))
 
-Secondcurve_renderer = Entity(model=Mesh(vertices=secondPoints, mode='line', thickness=5), color = color.green)
+Secondcurve_renderer = Entity(model=Mesh(vertices=secondPoints, mode='line', thickness=2.5), color = color.white)
 
 player = FirstPersonController(position=(-150, 300, -3500), gravity=0, speed=1000)
 
