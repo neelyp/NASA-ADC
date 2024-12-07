@@ -1,6 +1,6 @@
 from adcdata import getAny
 import math
-
+prevBest = 1
 def linkBudget(diameter, slantRange):
     # declare constants
     pt = 10 # Satellite Transmitter Power (in Decibel Watts, dBw)
@@ -9,7 +9,7 @@ def linkBudget(diameter, slantRange):
     nr = 0.55 # Ground Station Antenna efficiency 
     sol = 0.136363636 # Speed of Light/Carrier Frequency (in meters, m)
     kb = -228.6 # Boltzmann Constant (in Decibel Watts per degree Kelvin per Hertz, dBW/K/Hz
-    ts = 22 # System Noise Temperature (in degrees Kelvin, K)
+    ts = 222 # System Noise Temperature (in degrees Kelvin, K)
     
     # mathy time
     firstSimple = (nr*(((math.pi * diameter) / sol) ** 2)) # simplify the first bunch of parenthisis
@@ -17,6 +17,23 @@ def linkBudget(diameter, slantRange):
     final = (10**((pt+gt-loss+10*math.log(firstSimple,10)-20*math.log(secondSimple,10)-kb-10*math.log(ts,10))/10))/1000 # plug in simplified portion into total formula
     return final
 
+def sorting(budgets):
+    print(str(budgets))
+    global prevBest
+    sortedList = []
+    items = list(budgets)
+    if(items[prevBest][1]>=10000):
+        sortedList.append(items[prevBest][1])
+        budgets.remove(prevBest)
+        other = []
+        other = items.sort(key=lambda x: x[1])
+        #other = sorted(budgets.items(), key = lambda x: x[1], reverse=True)
+        sortedList.append(other)
+    else:
+        sortedList = items.sort(key=lambda tup: tup[1])
+        #sortedList = sorted(budgets.items(), key = lambda x: x[1], reverse=True)
+    prevBest = sortedList[0][0]
+    return sortedList
 
 def bestAntenna(actives, slants): # slant will be determined through data file, for now it is just a parameter to make this simpler
     """
@@ -67,11 +84,12 @@ def bestAntenna(actives, slants): # slant will be determined through data file, 
 
     # print(budgets)
 
-    highToLow = sorted(budgets.items(), key = lambda x: x[1], reverse=True) # sorts the antennas by link budget, highest to low.
+    #highToLow = sorted(budgets.items(), key = lambda x: x[1], reverse=True) # sorts the antennas by link budget, highest to low.
                                                                             # when using slant range 400k and ds24, ds34, and wpsa are active, it will return
                                                                             # [('ds24', 740.7264920372704), ('ds34', 740.7264920372704), ('wpsa', 92.27042807384723), ('ds54', 0)]
                                                                             # until slant range is read from data, every link budget will be the same 
                                                                             # other than wpsa since they all have the same diameter
+    highToLow = sorting(budgets.items())
     return highToLow
 
 # print(bestAntenna(getAny(wpsar,101)))

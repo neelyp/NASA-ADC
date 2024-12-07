@@ -78,15 +78,10 @@ light_radius = 40
 moon_angle = 0
 moon_radius = 4914.3
 
-timeSkib = time.time()
-txt_TimeOfMission = Text(text = "Time: " ,position=(-0.8,0.4), origin=(0,0), scale=1)
-txt_PositionOfRocket = Text(text = "Position: " ,position=(-0.8,0.45), origin=(0,0), scale=1)
-txt_time = Text(text = "Time: " + str(timeSkib), position=(-0.8,0.), origin=(0,0), scale=1)
 
 pathScale = 45
 
 def update():
-    txt_time.text = "Time " + str(timeSkib)
     move_direction = Vec3(held_keys['gamepad right stick x'], held_keys['gamepad right stick y'], 0).normalized()
     player.position += move_direction * .1
     move_direction = Vec3(held_keys['gamepad left stick x'], held_keys['gamepad left stick y'], 0).normalized()
@@ -270,22 +265,26 @@ button = Button(
 # )
 
 # Timeline container
+timeline_width = 0.8 * window.aspect_ratio  # Width as a fraction of screen width
+timeline_height = 0.03  # Height as a fraction of screen height
+timeline_y_position = -0.45  # Adjust vertical position
+
 fill_box = Entity(
     parent=camera.ui,
     model='quad',
     color=color.red,
-    scale=(timeline_width-1, 0.05),  # Adjust height as needed
-    position=(0, -0.4),  # Adjust Y to bring it into view
+    scale=(timeline_width, timeline_height),  # Adjust width and height dynamically
+    position=(0, timeline_y_position),  # Centered horizontally
 )
 
-# Timeline progress bar
+# Timeline progress bar 
 fill_bar = Entity(
     parent=camera.ui,
     model='quad',
     color=color.green,
-    scale=(0.01, 0.05),  # Initially narrow
-    position=((-timeline_width / 2)/7, -0.4),  # Match `fill_box` Y and align left
-    origin=(-0.5, 0.5),  # Align the left edge for growth
+    scale=(0.01, timeline_height),  # Initially narrow, matches `fill_box` height
+    position=(-timeline_width / 2, timeline_y_position),  # Align left edge
+    origin=(-0.5, 0.5),  # Grow from the left
 )
 
 # Draggable marker
@@ -293,9 +292,17 @@ drag_timeline = Draggable(
     parent=camera.ui,
     model='quad',
     color=color.white,
-    scale=(0.07, 0.15),  # Adjust width and height for visibility
-    position=(-timeline_width /7, -0.4),  # Start at the left of the timeline
+    scale=(0.07, timeline_height * .5),  # Visible marker
+    position=(-timeline_width / 2, timeline_y_position),  # Start at the left of the timeline
     lock=(0, 1, 0),  # Restrict dragging along X
+)
+
+# Time box position adjustment
+time_box = Text(
+    text="Time: 0.0",
+    position=(-0.5, timeline_y_position + 0.1),  # Position above the timeline
+    scale=1.5,
+    color=color.white,
 )
 
 
@@ -336,7 +343,7 @@ ds54_text = Text(
     parent = camera.ui
 )
 earth = Planet(0, -.1, 0, 151.860404762, 'assets/8k_earth_daymap', "Earth")#911.162428571
-moon = Moon(4914.3, 500, 0, 248.2, 'assets/8k_moon', "Moon")
+moon = Moon(0, 0, 0, 248.2, 'assets/8k_moon', "Moon")
 rocket = Rocket(rocketX, rocketY, rocketZ, 1, 'assets/Solid20Neon20Green-600x400' ,"Rocket") 
 
 #Orbit
@@ -351,12 +358,12 @@ half = 6488
 for i in range(1, size - half):
     points.append(Vec3(float(rx[i])/pathScale2, float(ry[i])/pathScale2, float(rz[i])/pathScale2))
 
-curve_renderer = Entity(model=Mesh(vertices=points, mode='line', thickness=2.5), color = color.white)
+curve_renderer = Entity(model=Mesh(vertices=points, mode='line', thickness=2.5), color = color.red)
 
 for i in range(size - half, size):
     secondPoints.append(Vec3(float(rx[i])/pathScale2, float(ry[i])/pathScale2, float(rz[i])/pathScale2))
 
-Secondcurve_renderer = Entity(model=Mesh(vertices=secondPoints, mode='line', thickness=2.5), color = color.white)
+Secondcurve_renderer = Entity(model=Mesh(vertices=secondPoints, mode='line', thickness=2.5), color = color.red)
 
 player = FirstPersonController(position=(-150, 300, -3500), gravity=0, speed=1000)
 
