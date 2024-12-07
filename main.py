@@ -101,9 +101,9 @@ def update():
     
     earth.rotation_y -= 0.1
     
-    moon_angle += 0.1
-    moon.x = earth.x + moon_radius * np.cos(np.radians(moon_angle))
-    moon.z = earth.z + moon_radius * np.sin(np.radians(moon_angle))
+    moon_angle += 0.0 #0.1
+    #moon.x = earth.x + moon_radius * np.cos(np.radians(moon_angle))
+    #moon.z = earth.z + moon_radius * np.sin(np.radians(moon_angle))
     
     light_angle += 0.1
     light_x = earth.x - moon_radius * np.cos(np.radians(moon_angle))
