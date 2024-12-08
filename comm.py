@@ -35,7 +35,7 @@ def linkBudget(diameter, slantRange):
 #     prevBest = sortedList[0][0]
 #     return sortedList
 
-def bestAntenna(actives, slants): # slant will be determined through data file, for now it is just a parameter to make this simpler
+def bestAntenna(actives, slants): # slant will be determined through data file
     """
     Returns the best antenna for the current position using the link budget.
     Higher link budget = better connection = better antenna
@@ -76,10 +76,10 @@ def bestAntenna(actives, slants): # slant will be determined through data file, 
     ds54Active = actives[3]
 
     budgets = { # dict of antennas as keys and link budget as value
-        "wpsa": capBudget(linkBudget(wpsaDiameter, slants[0])) if wpsaActive else 0, # python ternary operator basically a one line if statement using the link budget if it is active, otherwise setting it to 0
-        "ds24": capBudget(linkBudget(d, slants[1])) if ds24Active else 0, 
-        "ds34": capBudget(linkBudget(d, slants[2])) if ds34Active else 0,
-        "ds54": capBudget(linkBudget(d, slants[3])) if ds54Active else 0
+        "wpsa": linkBudget(wpsaDiameter, slants[0]) if wpsaActive else 0, # python ternary operator basically a one line if statement using the link budget if it is active, otherwise setting it to 0
+        "ds24": linkBudget(d, slants[1]) if ds24Active else 0, 
+        "ds34": linkBudget(d, slants[2]) if ds34Active else 0,
+        "ds54": linkBudget(d, slants[3]) if ds54Active else 0
     }
 
     # print(budgets)
@@ -148,8 +148,5 @@ def main():
         gyr = (bests[0][0], bests[1][0], bests[2][0]) # [green light, yellow light, red light]
         gyrs.append(gyr)
     return gyrs
-
-def capBudget(budget):
-    return min(budget, 10000) # use on all link budgets so nothing is more than 10k (for prioritized list)
 
 main()
