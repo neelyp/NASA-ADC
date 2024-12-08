@@ -1,6 +1,6 @@
 from adcdata import getAny
 import math
-
+prevBest = 1
 def linkBudget(diameter, slantRange):
     # declare constants
     pt = 10 # Satellite Transmitter Power (in Decibel Watts, dBw)
@@ -16,6 +16,31 @@ def linkBudget(diameter, slantRange):
     secondSimple = ((4000*math.pi)*slantRange) / sol # simplify second bunch of parenthisis
     final = (10**((pt+gt-loss+10*math.log(firstSimple,10)-20*math.log(secondSimple,10)-kb-10*math.log(ts,10))/10))/1000 # plug in simplified portion into total formula
     return final
+
+def sorting(budgets):
+    global prevBest
+    sortedList = []
+    items = list(budgets)
+    if(items[prevBest][1]>=10000):
+        print("Working")
+        sortedList.append(items[prevBest])
+        del items[prevBest]
+        other = []
+        other = sorted(items, key = lambda x: x[1], reverse=True)
+        sortedList.extend(other)
+    else:
+        sortedList = sorted(items, key = lambda x: x[1], reverse=True)
+    prev = sortedList[0][0]
+    match prev:
+        case 'wpsa':
+            prevBest = 0
+        case 'ds24':
+            prevBest = 1
+        case 'ds34':
+            prevBest = 2
+        case 'ds54':
+            prevBest = 3
+    return sortedList
 
 def bestAntenna(actives, slants): # slant will be determined through data file
     """
@@ -64,9 +89,16 @@ def bestAntenna(actives, slants): # slant will be determined through data file
         "ds54": linkBudget(d, slants[3]) if ds54Active else 0
     }
 
-    highToLow = sorted(budgets.items(), key = lambda x: x[1], reverse=True) # sorts the antennas by link budget, highest to low.
+
+    #highToLow = sorted(budgets.items(), key = lambda x: x[1], reverse=True) # sorts the antennas by link budget, highest to low.
+                                                                            # when using slant range 400k and ds24, ds34, and wpsa are active, it will return
+                                                                            # [('ds24', 740.7264920372704), ('ds34', 740.7264920372704), ('wpsa', 92.27042807384723), ('ds54', 0)]
+                                                                            # until slant range is read from data, every link budget will be the same 
+                                                                            # other than wpsa since they all have the same diameter
     
+    highToLow = sorting(budgets.items())
     return highToLow
+
 
 def main():
     mins = []
@@ -98,6 +130,7 @@ def main():
     gyrs = []
 
     for i in range(len(wpsa)):
+    # for i in range():
         # initialize all actives to false at beginning of each iteration
         wpsaActive = False
         ds24Active = False
@@ -116,9 +149,7 @@ def main():
             [getAny(wpsar, i),getAny(ds24r, i),getAny(ds34r, i),getAny(ds54r, i)] # and the slant ranges of them
         )
 
-        print(bests)
         gyr = (bests[0][0], bests[1][0], bests[2][0]) # [green light, yellow light, red light]
         gyrs.append(gyr)
     return gyrs
-
 main()
