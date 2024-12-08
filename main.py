@@ -2,10 +2,9 @@ from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina.shaders import lit_with_shadows_shader
 import numpy as np
-import random
 import time
-import adcdata
 from adcdata import *
+import math
 import comm
 
 
@@ -82,11 +81,12 @@ moon_radius = 4914.3
 pathScale = 45
 
 def update():
+#controlle compabtitly probably wont use
     move_direction = Vec3(held_keys['gamepad right stick x'], held_keys['gamepad right stick y'], 0).normalized()
     player.position += move_direction * .1
     move_direction = Vec3(held_keys['gamepad left stick x'], held_keys['gamepad left stick y'], 0).normalized()
     player.position -= move_direction * .1
-
+# setting some variables for the future.
     global moon_angle
     global light_angle
     global pos
@@ -96,25 +96,29 @@ def update():
     
     earth.rotation_y -= 0.1
     
-    moon_angle += 0.0 #0.1
-    #moon.x = earth.x + moon_radius * np.cos(np.radians(moon_angle))
-    #moon.z = earth.z + moon_radius * np.sin(np.radians(moon_angle))
+    moon_angle += 0.0 
     
     light_angle += 0.1
     light_x = earth.x - moon_radius * np.cos(np.radians(moon_angle))
     light_z = earth.z - moon_radius * np.sin(np.radians(moon_angle))
     pivot.position = (light_x, 2, light_z)
-    pos = pos+10
-    rocket.x = getAny(rx,pos)/pathScale
-    rocket.z = getAny(rz,pos)/pathScale
-    rocket.y = getAny(ry,pos)/pathScale
 
-    global current_x
-    if not is_paused and not drag_timeline.dragging:
-        current_x += move_speed
-        if current_x > -start_x:
-            current_x = start_x
-        drag_timeline.x = current_x
+    # Only update rocket and timeline if the simulation is not paused
+    if not is_paused:
+        pos = pos + 10
+        if pos < len(rx):
+            rocket.x = getAny(rx, pos) / pathScale
+            rocket.z = getAny(rz, pos) / pathScale
+            rocket.y = getAny(ry, pos) / pathScale
+
+            # Update velocity display
+            velocity_text.text = f"VX: {getAny(vx, pos):.2f}\nVY: {getAny(vy, pos):.2f}\nVZ: {getAny(vz, pos):.2f}"
+
+            # Update timeline
+            global current_x
+            if not drag_timeline.dragging:
+                current_x = start_x + (pos / len(rx)) * (abs(start_x * 2))
+                drag_timeline.x = current_x
 
     elif drag_timeline.dragging:
         current_x = drag_timeline.x
@@ -123,17 +127,14 @@ def update():
     update_fill_bar()
     
 def update_time():
-    relative_pos = (current_x - start_x) / (abs(start_x * 2))
-    array_index = int(relative_pos * len(mins))
-    if 0 <= array_index < len(mins):
-        time_box.text = f"Time: {mins[array_index]:}"
-        # colorize_thingies(array_index)
-        print(f"Minutes: {mins[array_index]}")
+    if pos < len(mins):
+        time_box.text = f"Time: {mins[pos]}"
 
 def update_fill_bar():
-    relative_pos = (current_x - start_x) / (abs(start_x * 2))
-    fill_bar.scale_x = timeline_width * relative_pos
-
+     if pos < len(rx):
+        relative_pos = pos / len(rx)
+        fill_bar.scale_x = timeline_width * relative_pos
+#link budget
 def colorize_thingies(num):
     wpsa_text.color=color.gray
     ds24_text.color=color.gray
@@ -173,7 +174,29 @@ def colorize_thingies(num):
             ds34_text.color=color.red
         case 'ds54':
             ds54_text.color=color.red
+# how to restart 
+def restart_program():
+    global pos, is_paused, current_x
     
+    # Reset rocket position
+    pos = 0
+    rocket.x = getAny(rx, pos) / pathScale
+    rocket.z = getAny(rz, pos) / pathScale
+    rocket.y = getAny(ry, pos) / pathScale
+    
+    # Reset timeline
+    is_paused = True
+    current_x = start_x
+    drag_timeline.x = current_x
+    fill_bar.scale_x = 0
+    
+    # Reset time and velocity displays
+    time_box.text = "Time: 0.0"
+    velocity_text.text = "VX: 0.0\nVY: 0.0\nVZ: 0.0"
+    
+    # Reset button text
+    button.text = "play"
+
 def input(key):
     if held_keys['space']:
         player.y += 1200 * time.dt
@@ -181,12 +204,16 @@ def input(key):
         player.y -= 1200 * time.dt
     if key == 'escape':
         quit()
-    global is_paused
     
-    if held_keys['t']:
+    global is_paused
+    #actually how to start the the game
+    if key == 't':
         is_paused = not is_paused
         button.text = "play" if is_paused else "pause"
         print("Button clicked - State:", "paused" if is_paused else "playing")
+        # restarts but have to oress t after the run 
+    if key == 'r':
+        restart_program()
 
 class Planet(Entity):   
     def __init__(self, x, y, z, scale, texture, name):
@@ -298,12 +325,7 @@ drag_timeline = Draggable(
 )
 
 # Time box position adjustment
-time_box = Text(
-    text="Time: 0.0",
-    position=(-0.5, timeline_y_position + 0.1),  # Position above the timeline
-    scale=1.5,
-    color=color.white,
-)
+
 
 time_box = Text(
     text="Time: 0.0",
@@ -312,6 +334,14 @@ time_box = Text(
     color=color.white,
     # parent = camera.ui
 )
+velocity_text = Text(
+    text="VX: 0.0\nVY: 0.0\nVZ: 0.0",
+    position=(-0.7, 0.45),  # Top-left corner
+    scale=1.5,
+    color=color.white,
+    parent=camera.ui
+)
+
 wpsa_text = Text(
     text="WPSA",
     position=(.7, 0.45),  # Raised higher
@@ -341,7 +371,7 @@ ds54_text = Text(
     parent = camera.ui
 )
 earth = Planet(0, -.1, 0, 151.860404762, 'assets/8k_earth_daymap', "Earth")#911.162428571
-moon = Moon(0, 0, 0, 248.2, 'assets/8k_moon', "Moon")
+moon = Moon(-8470, -2935, -1380, 41.00230928574, 'assets/8k_moon', "Moon")
 rocket = Rocket(rocketX, rocketY, rocketZ, 1, 'assets/Solid20Neon20Green-600x400' ,"Rocket") 
 
 #Orbit
@@ -355,13 +385,23 @@ half = 6488
 
 for i in range(1, size - half):
     points.append(Vec3(float(rx[i])/pathScale2, float(ry[i])/pathScale2, float(rz[i])/pathScale2))
+# first half of the rocket path
+curve_renderer = Entity(
+    model=Mesh(vertices=points, mode='line', thickness=2.5), 
+    color=color.yellow, 
+    unlit=True  # This ensures the color is not affected by lighting
+)
 
-curve_renderer = Entity(model=Mesh(vertices=points, mode='line', thickness=2.5), color = color.red)
 
 for i in range(size - half, size):
     secondPoints.append(Vec3(float(rx[i])/pathScale2, float(ry[i])/pathScale2, float(rz[i])/pathScale2))
 
-Secondcurve_renderer = Entity(model=Mesh(vertices=secondPoints, mode='line', thickness=2.5), color = color.red)
+# second half of the rocket path
+Secondcurve_renderer = Entity(
+    model=Mesh(vertices=secondPoints, mode='line', thickness=2.5), 
+    color=color.cyan, 
+    unlit=True  # This ensures the color is not affected by lighting
+)
 
 player = FirstPersonController(position=(-150, 300, -3500), gravity=0, speed=1000)
 
