@@ -7,7 +7,7 @@ from adcdata import *
 import math
 import comm
 
-
+#setting up arrays from the data file 
 mins = []
 rx = []
 ry  = []
@@ -24,6 +24,7 @@ ds24 = []
 ds24r = []
 ds34 = []
 ds34r = []
+#opening up the file and then reading and appending to arrays declared above
 artemisPath= open("assets/NASA_ADC_Data_Update.csv", "r")  
 for line in artemisPath:
     entries = line.split(",")
@@ -52,6 +53,7 @@ window.fullscreen = True
 
 Sky(texture="assets/space")
 
+#things for the timeline
 is_paused = True
 timeline_width = 12
 start_x = -6
@@ -103,7 +105,7 @@ def update():
     light_z = earth.z - moon_radius * np.sin(np.radians(moon_angle))
     pivot.position = (light_x, 2, light_z)
 
-    # Only update rocket and timeline if the simulation is not paused
+    # Only update rocket and timeline if the game is not paused
     if not is_paused:
         pos = pos + 10
         if pos < len(rx):
@@ -111,7 +113,7 @@ def update():
             rocket.z = getAny(rz, pos) / pathScale
             rocket.y = getAny(ry, pos) / pathScale
 
-            # Update velocity display
+            # velocity display
             velocity_text.text = f"VX: {getAny(vx, pos):.2f}\nVY: {getAny(vy, pos):.2f}\nVZ: {getAny(vz, pos):.2f}"
 
             # Update timeline
@@ -125,11 +127,11 @@ def update():
     
     update_time()
     update_fill_bar()
-    
+    #keeps updating time 
 def update_time():
     if pos < len(mins):
         time_box.text = f"Time: {mins[pos]}"
-
+    #the green bar that fills up the red one 
 def update_fill_bar():
      if pos < len(rx):
         relative_pos = pos / len(rx)
@@ -198,12 +200,13 @@ def restart_program():
     button.text = "play"
 
 def input(key):
+    #how to move around up and down 
     if held_keys['space']:
         player.y += 1200 * time.dt
     if held_keys['control']:
         player.y -= 1200 * time.dt
     if key == 'escape':
-        quit()
+        quit()     #ends programs
     
     global is_paused
     #actually how to start the the game
@@ -211,10 +214,10 @@ def input(key):
         is_paused = not is_paused
         button.text = "play" if is_paused else "pause"
         print("Button clicked - State:", "paused" if is_paused else "playing")
-        # restarts but have to oress t after the run 
+        # restarts but have to press t after the run 
     if key == 'r':
         restart_program()
-
+# creating class for each major entity: Earth, Moon, Rocket
 class Planet(Entity):   
     def __init__(self, x, y, z, scale, texture, name):
         super().__init__()
@@ -262,40 +265,11 @@ button = Button(
     on_click=input
 )
 
-# Updated timeline positioning
-# fill_box = Entity(
-#     parent =  camera.ui,
-#     model='quad',
-#     color=color.red,
-#     scale=(timeline_width, 0.2),
-#     position=(0, -3.5,1)
-   
-# )
-# #the green stiff not static
-# fill_bar = Entity(
-#     parent = camera.ui,
-#     model='quad',
-#     color=color.green,
-#     scale=(0, 0.2),  
-#     position=(0, 0, 1),
-#     origin=(-0.5, 0.5,1)  
-# )
-
-# drag_timeline = Draggable(
-#     parent = camera.ui,
-#     model='quad',
-#     color=color.white,
-#     scale=(0.07, 0.45),
-#     position=(start_x, -3.5,1),
-#     lock=(0, 1, 0)
-    
-# )
-
 # Timeline container
 timeline_width = 0.8 * window.aspect_ratio  # Width as a fraction of screen width
 timeline_height = 0.03  # Height as a fraction of screen height
 timeline_y_position = -0.45  # Adjust vertical position
-
+#creation of timeline
 fill_box = Entity(
     parent=camera.ui,
     model='quad',
@@ -323,10 +297,7 @@ drag_timeline = Draggable(
     position=(-timeline_width / 2, timeline_y_position),  # Start at the left of the timeline
     lock=(0, 1, 0),  # Restrict dragging along X
 )
-
-# Time box position adjustment
-
-
+#text for on screen
 time_box = Text(
     text="Time: 0.0",
     position=(-0.1, -0.4),  # Raised higher
@@ -370,6 +341,7 @@ ds54_text = Text(
     color=color.white,
     parent = camera.ui
 )
+#position of earth mooon and rocket and their models
 earth = Planet(0, -.1, 0, 151.860404762, 'assets/8k_earth_daymap', "Earth")#911.162428571
 moon = Moon(-8470, -2935, -1380, 41.00230928574, 'assets/8k_moon', "Moon")
 rocket = Rocket(rocketX, rocketY, rocketZ, 1, 'assets/Solid20Neon20Green-600x400' ,"Rocket") 
