@@ -17,24 +17,6 @@ def linkBudget(diameter, slantRange):
     final = (10**((pt+gt-loss+10*math.log(firstSimple,10)-20*math.log(secondSimple,10)-kb-10*math.log(ts,10))/10))/1000 # plug in simplified portion into total formula
     return final
 
-# def sorting(budgets):
-#     print(str(budgets))
-#     global prevBest
-#     sortedList = []
-#     items = list(budgets)
-#     if(items[prevBest][1]>=10000):
-#         sortedList.append(items[prevBest][1])
-#         budgets.remove(prevBest)
-#         other = []
-#         other = items.sort(key=lambda x: x[1])
-#         #other = sorted(budgets.items(), key = lambda x: x[1], reverse=True)
-#         sortedList.append(other)
-#     else:
-#         sortedList = items.sort(key=lambda tup: tup[1])
-#         #sortedList = sorted(budgets.items(), key = lambda x: x[1], reverse=True)
-#     prevBest = sortedList[0][0]
-#     return sortedList
-
 def bestAntenna(actives, slants): # slant will be determined through data file
     """
     Returns the best antenna for the current position using the link budget.
@@ -82,18 +64,10 @@ def bestAntenna(actives, slants): # slant will be determined through data file
         "ds54": linkBudget(d, slants[3]) if ds54Active else 0
     }
 
-    # print(budgets)
-
     highToLow = sorted(budgets.items(), key = lambda x: x[1], reverse=True) # sorts the antennas by link budget, highest to low.
                                                                             # when using slant range 400k and ds24, ds34, and wpsa are active, it will return
                                                                             # [('ds24', 740.7264920372704), ('ds34', 740.7264920372704), ('wpsa', 92.27042807384723), ('ds54', 0)]
-                                                                            # until slant range is read from data, every link budget will be the same 
-                                                                            # other than wpsa since they all have the same diameter
-    # highToLow = sorting(budgets.items())
     return highToLow
-
-# print(bestAntenna(getAny(wpsar,101)))
-# print(bestAntenna(74284.61081))
 
 def main():
     mins = []
@@ -125,7 +99,6 @@ def main():
     gyrs = []
 
     for i in range(len(wpsa)):
-    # for i in range():
         # initialize all actives to false at beginning of each iteration
         wpsaActive = False
         ds24Active = False
