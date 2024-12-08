@@ -130,6 +130,7 @@ def update():
     #keeps updating time 
 def update_time():
     if pos < len(mins):
+        colorize_thingies(pos)
         time_box.text = f"Time: {mins[pos]}"
     #the green bar that fills up the red one 
 def update_fill_bar():
