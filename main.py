@@ -67,8 +67,8 @@ rocketZ=0
 window.title = "Astrovia"
 window.icon = "assets/space.png"
 
-max_frames = 120
-window.fps_counter.max = 120
+max_frames = 60
+window.fps_counter.max = 60
 
 paused = False
 
@@ -127,7 +127,7 @@ def update_time():
     array_index = int(relative_pos * len(mins))
     if 0 <= array_index < len(mins):
         time_box.text = f"Time: {mins[array_index]:}"
-        colorize_thingies(array_index)
+        # colorize_thingies(array_index)
         print(f"Minutes: {mins[array_index]}")
 
 def update_fill_bar():
@@ -304,8 +304,6 @@ time_box = Text(
     scale=1.5,
     color=color.white,
 )
-
-
 
 time_box = Text(
     text="Time: 0.0",
