@@ -65,8 +65,7 @@ def bestAntenna(actives, slants): # slant will be determined through data file
     }
 
     highToLow = sorted(budgets.items(), key = lambda x: x[1], reverse=True) # sorts the antennas by link budget, highest to low.
-                                                                            # when using slant range 400k and ds24, ds34, and wpsa are active, it will return
-                                                                            # [('ds24', 740.7264920372704), ('ds34', 740.7264920372704), ('wpsa', 92.27042807384723), ('ds54', 0)]
+    
     return highToLow
 
 def main():
