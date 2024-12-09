@@ -85,9 +85,9 @@ pathScale = 45
 def update():
 #controlle compabtitly probably wont use
     move_direction = Vec3(held_keys['gamepad right stick x'], held_keys['gamepad right stick y'], 0).normalized()
-    player.position += move_direction * .1
+    player.position += move_direction * 1
     move_direction = Vec3(held_keys['gamepad left stick x'], held_keys['gamepad left stick y'], 0).normalized()
-    player.position -= move_direction * .1
+    player.position -= move_direction * 1
 # setting some variables for the future.
     global moon_angle
     global light_angle
@@ -105,7 +105,6 @@ def update():
     light_z = earth.z - moon_radius * np.sin(np.radians(moon_angle))
     pivot.position = (light_x, 2, light_z)
 
-    # Only update rocket and timeline if the game is not paused
     if not is_paused:
         pos = pos + 10
         if pos < len(rx):
@@ -119,11 +118,15 @@ def update():
             # Update timeline
             global current_x
             if not drag_timeline.dragging:
-                current_x = start_x + (pos / len(rx)) * (abs(start_x * 2))
+                # Calculate the x position based on the fill bar's scale
+                current_x = start_x + fill_bar.scale_x * (abs(start_x * 2) / timeline_width)
                 drag_timeline.x = current_x
 
     elif drag_timeline.dragging:
         current_x = drag_timeline.x
+        # When dragging, update the pos and fill bar accordingly
+        pos = int((drag_timeline.x - start_x) / (abs(start_x * 2) / timeline_width) * len(rx))
+        fill_bar.scale_x = timeline_width * (pos / len(rx))
     
     update_time()
     update_fill_bar()
@@ -143,7 +146,7 @@ def colorize_thingies(num):
     ds24_text.color=color.gray
     ds34_text.color=color.gray
     ds54_text.color=color.gray
-    triplets = comm.main()
+    triplets = comm.antennaSeq
     print("length: " + str(len(triplets)))
     print("index" + str(num))
     curr = triplets[num]

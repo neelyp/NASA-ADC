@@ -22,7 +22,7 @@ def sorting(budgets):
     sortedList = []
     items = list(budgets)
     if(items[prevBest][1]>=10000):
-        print("Working")
+        # print("Working")
         sortedList.append(items[prevBest])
         del items[prevBest]
         other = []
@@ -152,4 +152,5 @@ def main():
         gyr = (bests[0][0], bests[1][0], bests[2][0]) # [green light, yellow light, red light]
         gyrs.append(gyr)
     return gyrs
-main()
+
+antennaSeq = main()
