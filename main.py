@@ -249,16 +249,14 @@ class Moon(Entity):
         self.name = name 
 
 class Rocket(Entity):
-    def __init__(self, x, y, z, scale, texture, name):
+    def __init__(self, x, y, z, scale, name):
         super().__init__()
-        self.model = load_model('artemis 1.stl')
-        self.collider = 'cube'
+        self.model = load_model('tinker.obj')
         self.x = x
         self.y = y
         self.z = z
         self.scale = scale
-       # self.shader = lit_with_shadows_shader
-        self.texture = texture
+        self.shader = lit_with_shadows_shader
         self.name = name 
 
 button = Button(
@@ -348,7 +346,7 @@ ds54_text = Text(
 #position of earth mooon and rocket and their models
 earth = Planet(0, -.1, 0, 151.860404762, 'assets/8k_earth_daymap', "Earth")#911.162428571
 moon = Moon(-8470, -2935, -1380, 41.00230928574, 'assets/8k_moon', "Moon")
-rocket = Rocket(rocketX, rocketY, rocketZ, 1, 'assets/Solid20Neon20Green-600x400' ,"Rocket") 
+rocket = Rocket(rocketX, rocketY, rocketZ, 1,"Rocket") 
 
 #Orbit
 size = len(rx) - 3
