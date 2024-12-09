@@ -65,6 +65,10 @@ rocketX=0
 rocketY=0
 rocketZ=0
 
+total_distance = 0
+prev_x, prev_y, prev_z = None, None, None
+
+
 window.title = "Astrovia"
 window.icon = "assets/space.png"
 
@@ -95,6 +99,7 @@ def update():
     global rocketX
     global rocketY
     global rocketZ
+    global prev_x, prev_y, prev_z, total_distance
     
     earth.rotation_y -= 0.1
     
@@ -108,25 +113,29 @@ def update():
     if not is_paused:
         pos = pos + 10
         if pos < len(rx):
-            rocket.x = getAny(rx, pos) / pathScale
-            rocket.z = getAny(rz, pos) / pathScale
-            rocket.y = getAny(ry, pos) / pathScale
+            current_x = getAny(rx, pos) / pathScale
+            current_y = getAny(ry, pos) / pathScale
+            current_z = getAny(rz, pos) / pathScale
+            
+            # Update rocket position
+            rocket.x = current_x
+            rocket.z = current_z
+            rocket.y = current_y
 
-            # velocity display
-            velocity_text.text = f"VX: {getAny(vx, pos):.2f}\nVY: {getAny(vy, pos):.2f}\nVZ: {getAny(vz, pos):.2f}"
+            # Calculate distance traveled
+            if prev_x is not None:
+                distance_increment = (
+                    (current_x - prev_x)**2 + 
+                    (current_y - prev_y)**2 + 
+                    (current_z - prev_z)**2
+                )
+                total_distance += distance_increment
 
-            # Update timeline
-            global current_x
-            if not drag_timeline.dragging:
-                # Calculate the x position based on the fill bar's scale
-                current_x = start_x + fill_bar.scale_x * (abs(start_x * 2) / timeline_width)
-                drag_timeline.x = current_x
+            # Update previous coordinates
+            prev_x, prev_y, prev_z = current_x, current_y, current_z
 
-    elif drag_timeline.dragging:
-        current_x = drag_timeline.x
-        # When dragging, update the pos and fill bar accordingly
-        pos = int((drag_timeline.x - start_x) / (abs(start_x * 2) / timeline_width) * len(rx))
-        fill_bar.scale_x = timeline_width * (pos / len(rx))
+            # Update distance text
+            distance_text.text = f"Total Distance: {total_distance:.2f} units"
     
     update_time()
     update_fill_bar()
@@ -147,8 +156,8 @@ def colorize_thingies(num):
     ds34_text.color=color.gray
     ds54_text.color=color.gray
     triplets = comm.antennaSeq
-    print("length: " + str(len(triplets)))
-    print("index" + str(num))
+    # print("length: " + str(len(triplets)))
+    # print("index" + str(num))
     curr = triplets[num]
     one = curr[0]
     match one:
@@ -182,8 +191,12 @@ def colorize_thingies(num):
             ds54_text.color=color.red
 # how to restart 
 def restart_program():
-    global pos, is_paused, current_x
+    global pos, is_paused, current_x, total_distance, prev_x, prev_y, prev_z
     
+    # Reset distance tracking
+    total_distance = 0
+    prev_x, prev_y, prev_z = None, None, None
+
     # Reset rocket position
     pos = 0
     rocket.x = getAny(rx, pos) / pathScale
@@ -193,12 +206,13 @@ def restart_program():
     # Reset timeline
     is_paused = True
     current_x = start_x
-    drag_timeline.x = current_x
+    # drag_timeline.x = current_x
     fill_bar.scale_x = 0
     
     # Reset time and velocity displays
     time_box.text = "Time: 0.0"
     velocity_text.text = "VX: 0.0\nVY: 0.0\nVZ: 0.0"
+    distance_text.text = "Total Distance: 0.0 units"
     
     # Reset button text
     button.text = "play"
@@ -206,9 +220,9 @@ def restart_program():
 def input(key):
     #how to move around up and down 
     if held_keys['space']:
-        player.y += 1200 * time.dt
+        player.y += 12000 * time.dt
     if held_keys['control']:
-        player.y -= 1200 * time.dt
+        player.y -= 12000 * time.dt
     if key == 'escape':
         quit()     #ends programs
     
@@ -290,15 +304,15 @@ fill_bar = Entity(
     origin=(-0.5, 0.5),  # Grow from the left
 )
 
-# Draggable marker
-drag_timeline = Draggable(
-    parent=camera.ui,
-    model='quad',
-    color=color.white,
-    scale=(0.07, timeline_height * .5),  # Visible marker
-    position=(-timeline_width / 2, timeline_y_position),  # Start at the left of the timeline
-    lock=(0, 1, 0),  # Restrict dragging along X
-)
+# # Draggable marker
+# drag_timeline = Draggable(
+#     parent=camera.ui,
+#     model='quad',
+#     color=color.white,
+#     scale=(timeline_height * .5,0.07),  # Visible marker
+#     position=(-timeline_width / 2, timeline_y_position),  # Start at the left of the timeline
+#     lock=(0, 1, 0),  # Restrict dragging along X
+# )
 #text for on screen
 time_box = Text(
     text="Time: 0.0",
@@ -309,12 +323,18 @@ time_box = Text(
 )
 velocity_text = Text(
     text="VX: 0.0\nVY: 0.0\nVZ: 0.0",
-    position=(-0.7, 0.45),  # Top-left corner
+    position=(-0.7, 0.4),  # Top-left corner
     scale=1.5,
     color=color.white,
     parent=camera.ui
 )
-
+distance_text = Text(
+    text="Total Distance: 0.0 units",
+    position=(-0.7, 0.3),  # Adjust position as needed
+    scale=1.5,
+    color=color.white,
+    parent=camera.ui
+)
 wpsa_text = Text(
     text="WPSA",
     position=(.7, 0.45),  # Raised higher
@@ -377,7 +397,7 @@ Secondcurve_renderer = Entity(
     unlit=True  # This ensures the color is not affected by lighting
 )
 
-player = FirstPersonController(position=(-150, 300, -3500), gravity=0, speed=1000)
+player = FirstPersonController(position=(-150, 300, -3500), gravity=0, speed=10000)
 
 pivot = Entity()
 DirectionalLight(parent=pivot, y=2, z=3, shadows=True)
