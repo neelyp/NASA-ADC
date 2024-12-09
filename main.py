@@ -135,7 +135,7 @@ def update():
             prev_x, prev_y, prev_z = current_x, current_y, current_z
 
             # Update distance text
-            distance_text.text = f"Total Distance: {total_distance:.2f} units"
+            distance_text.text = f"Total Distance: {total_distance:.2f} Kilometers"
     
     update_time()
     update_fill_bar()
