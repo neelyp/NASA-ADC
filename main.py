@@ -1,3 +1,4 @@
+
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina.shaders import lit_with_shadows_shader
@@ -116,6 +117,14 @@ def update():
             current_x = getAny(rx, pos) / pathScale
             current_y = getAny(ry, pos) / pathScale
             current_z = getAny(rz, pos) / pathScale
+        if pos < len(rx):
+            # Update velocity text
+            current_vx = float(getAny(vx, pos))
+            current_vy = float(getAny(vy, pos))
+            current_vz = float(getAny(vz, pos))
+            
+            velocity_text.text = f"VX: {current_vx:.2f}\nVY: {current_vy:.2f}\nVZ: {current_vz:.2f}"
+            
             
             # Update rocket position
             rocket.x = current_x
@@ -330,7 +339,7 @@ velocity_text = Text(
 )
 distance_text = Text(
     text="Total Distance: 0.0 units",
-    position=(-0.7, 0.3),  # Adjust position as needed
+    position=(-0.7, 0.28),  # Adjust position as needed
     scale=1.5,
     color=color.white,
     parent=camera.ui
