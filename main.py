@@ -60,7 +60,6 @@ timeline_width = 12
 start_x = -6
 current_x = start_x
 move_speed = 0.1
-
 pos=0
 rocketX=0
 rocketY=0
@@ -159,6 +158,7 @@ def update_fill_bar():
         relative_pos = pos / len(rx)
         fill_bar.scale_x = timeline_width * relative_pos
 #link budget
+#colors the antenna text
 def colorize_thingies(num):
     wpsa_text.color=color.gray
     ds24_text.color=color.gray
@@ -312,17 +312,6 @@ fill_bar = Entity(
     position=(-timeline_width / 2, timeline_y_position),  # Align left edge
     origin=(-0.5, 0.5),  # Grow from the left
 )
-
-# # Draggable marker
-# drag_timeline = Draggable(
-#     parent=camera.ui,
-#     model='quad',
-#     color=color.white,
-#     scale=(timeline_height * .5,0.07),  # Visible marker
-#     position=(-timeline_width / 2, timeline_y_position),  # Start at the left of the timeline
-#     lock=(0, 1, 0),  # Restrict dragging along X
-# )
-#text for on screen
 time_box = Text(
     text="Time: 0.0",
     position=(-0.1, -0.4),  # Raised higher

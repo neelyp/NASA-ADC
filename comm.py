@@ -17,31 +17,6 @@ def linkBudget(diameter, slantRange):
     final = (10**((pt+gt-loss+10*math.log(firstSimple,10)-20*math.log(secondSimple,10)-kb-10*math.log(ts,10))/10))/1000 # plug in simplified portion into total formula
     return final
 
-def sorting(budgets):
-    global prevBest
-    sortedList = []
-    items = list(budgets)
-    if(items[prevBest][1]>=10000):
-        # print("Working")
-        sortedList.append(items[prevBest])
-        del items[prevBest]
-        other = []
-        other = sorted(items, key = lambda x: x[1], reverse=True)
-        sortedList.extend(other)
-    else:
-        sortedList = sorted(items, key = lambda x: x[1], reverse=True)
-    prev = sortedList[0][0]
-    match prev:
-        case 'wpsa':
-            prevBest = 0
-        case 'ds24':
-            prevBest = 1
-        case 'ds34':
-            prevBest = 2
-        case 'ds54':
-            prevBest = 3
-    return sortedList
-
 def bestAntenna(actives, slants): # slant will be determined through data file
     """
     Returns the best antenna for the current position using the link budget.
@@ -50,24 +25,6 @@ def bestAntenna(actives, slants): # slant will be determined through data file
     End goal is to display the antennas based on best connection; Green light for best connection, then yellow for second best, and red for shouldn't be used.
 
     Colors will be decided based on order returned from this. the first antenna returned is green, second is yellow, last two are red (im not sure if we should include inactive antennas, but they shouldn't be used anyways so red shld work)
-
-    TODO: make this a prioritized list 🙄
-    things over 10k are thought as same as 10k
-    eg:
-    sattelites a,b,c , max 10
-    a: 5
-    b: 6
-    c: 10
-
-    c,b,a
-
-    changes to:
-    a: 15
-    b: 6
-    c: 10
-
-    since a is over 10 and c is 10 + alr active, don't change active sattelite
-    c,a,b
     """
 
     # antenna diameters
@@ -99,6 +56,30 @@ def bestAntenna(actives, slants): # slant will be determined through data file
     highToLow = sorting(budgets.items())
     return highToLow
 
+def sorting(budgets):
+    global prevBest
+    sortedList = []
+    items = list(budgets)
+    if(items[prevBest][1]>=10000):
+        # print("Working")
+        sortedList.append(items[prevBest])
+        del items[prevBest]
+        other = []
+        other = sorted(items, key = lambda x: x[1], reverse=True)
+        sortedList.extend(other)
+    else:
+        sortedList = sorted(items, key = lambda x: x[1], reverse=True)
+    prev = sortedList[0][0]
+    match prev:
+        case 'wpsa':
+            prevBest = 0
+        case 'ds24':
+            prevBest = 1
+        case 'ds34':
+            prevBest = 2
+        case 'ds54':
+            prevBest = 3
+    return sortedList
 
 def main():
     mins = []
